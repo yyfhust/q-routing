@@ -51,15 +51,12 @@ class NetworkSimulator:
       # TODO: Do we allow packets to go to itself?
       n1 = choice(list(self.G.nodes))
       n2 = choice(list(self.G.nodes))
-      while (n1 == n2): 
+      while n1 == n2:
         n2 = choice(list(self.G.nodes))
 
       packet = Packet(n1, n2)
       self.routePacket(packet)
-      break
+      print(packet)
 
     return 0
 
-# TODO: Move this elsewhere. Only here for testing.
-nS = NetworkSimulator(100)
-nS.routePackets(1000)
