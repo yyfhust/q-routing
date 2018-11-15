@@ -94,11 +94,13 @@ class NetworkSimulator:
 
   # Route a single packet through a simulated route (an edge) 
   # and return the destination note.
-  def routePacket(self, packet, node, edge):
+  def routePacket(self, packet, edge):
     dst = edge.dst
     packet.addToPath(dst)
     packet.totalTime += edge.getTravelTime()
     packet.isDropped = edge.isDropped()
+
+    print(packet)
 
     return dst
 
