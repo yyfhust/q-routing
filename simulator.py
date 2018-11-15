@@ -159,9 +159,6 @@ class NetworkSimulator:
       break
       
     return 0
-<<<<<<< HEAD
 
 networkSimulator = NetworkSimulator(numNodes = 40, numEdges = 400)
 networkSimulator.routePackets(n = 1000)
-=======
->>>>>>> a7d7b9dd5a3f9553ae567a7d43137fa38067cfa9
