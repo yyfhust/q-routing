@@ -62,7 +62,6 @@ class QPacketRouter(PacketRouter):
       # select next node with epsilon-greedy strategy
       if self.explore():
         nxt = choice(list(self.simulator.G.neighbors(cur)))
-        _ = self.Q[(cur, packet.dst, nxt)]
       else:
         nxt, _ = self.min_Q(cur, packet.dst)
 

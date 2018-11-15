@@ -32,23 +32,29 @@ class NetworkSimulator:
 
     return travelTime
 
+  def generate_packet(self):
+    n1 = choice(list(self.G.nodes))
+    n2 = choice(list(self.G.nodes))
+    while n1 == n2:
+      n2 = choice(list(self.G.nodes))
+    return Packet(n1, n2)
+
+
+  def generate_packets(self, n):
+    return [self.generate_packet() for _ in range(n)]
+
   # Generate n packets and simulate a route for all of them.
-  def simulateNetworkLoad(self, n, packetRouter, verbose = False):
+  def simulate_network_load(self, packets, packetRouter, verbose = False):
     # TODO: Generate a packet and have it routed thru
     # different nodes, adding to total travel time and
     # if dropped.
+    n = len(packets)
     total_path_length = 0
     dropped_packets = 0
     total_time = 0
-    for k in range(n):
+    for packet in packets:
       # Generate new packet.
       # TODO: Do we allow packets to go to itself?
-      n1 = choice(list(self.G.nodes))
-      n2 = choice(list(self.G.nodes))
-      while n1 == n2:
-        n2 = choice(list(self.G.nodes))
-
-      packet = Packet(n1, n2)
       packetRouter.routePacket(packet)
       total_path_length += len(packet.path) / n
       total_time += packet.totalTime / n

@@ -47,5 +47,10 @@ class Packet:
   def addToPath(self, node):
     self.path.append(node)
 
+  def reset(self):
+    self.path = [self.src]
+    self.dropped = False
+    self.totalTime = 0
+
   def __str__(self):
     return " -> ".join(map(str, self.path))
