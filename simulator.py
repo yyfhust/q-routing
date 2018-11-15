@@ -64,7 +64,3 @@ class NetworkSimulator:
       print("  total time of   %f" % packet.totalTime)
       print("  dropped?        %s" % packet.dropped)
     return 0
-
-# TODO: Move this elsewhere. Only here for testing.
-nS = NetworkSimulator(100)
-nS.routePackets(1000)
