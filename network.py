@@ -21,7 +21,6 @@ class EdgeAttr:
     # drawn from a uniform distribution.
     self.latency = rnd.randint(MIN_LATENCY, MAX_LATENCY)
     self.dropRate = float(rnd.randint(MIN_DROP_RATE * DROP_MULT, MAX_DROP_RATE  * DROP_MULT)) / DROP_MULT
-    print(self.dropRate)
 
   # Generate a travel time for a particular packet from
   # a standard Gaussian distribution.

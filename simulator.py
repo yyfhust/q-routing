@@ -43,7 +43,7 @@ class NetworkSimulator:
       cur = nxt
 
   # Generate n packets and simulate a route for all of them.
-  def routePackets(self, n):
+  def routePackets(self, n, verbose = False):
     # TODO: Generate a packet and have it routed thru
     # different nodes, adding to total travel time and
     # if dropped.
@@ -58,9 +58,10 @@ class NetworkSimulator:
       packet = Packet(n1, n2)
       self.routePacket(packet)
 
-      # Print packet stats for debugging.
-      print("Packet: %s to %s" % (n1, n2))
-      print("  path length of  %i" % len(packet.path))
-      print("  total time of   %f" % packet.totalTime)
-      print("  dropped?        %s" % packet.dropped)
+      if verbose:
+        # Print packet stats for debugging.
+        print("Packet: %s to %s" % (n1, n2))
+        print("  path length of  %i" % len(packet.path))
+        print("  total time of   %f" % packet.totalTime)
+        print("  dropped?        %s" % packet.dropped)
     return 0

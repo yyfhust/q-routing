@@ -9,4 +9,4 @@ from simulator import NetworkSimulator
 
 if __name__ == '__main__':
   nS = NetworkSimulator(100)
-  nS.routePackets(1000)
+  nS.routePackets(1000, verbose = True)
