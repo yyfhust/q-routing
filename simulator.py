@@ -84,11 +84,11 @@ class NetworkSimulator:
       dst.addEdge(edge)
       self.edges[i] = edge
 
-  # TODO:
+  # TODO: Save network node and edge configurations into a file.
   def writeConfig(self):
     return
 
-  # TODO:
+  # TODO: Load network node and edge configurations from a file.
   def readConfig(self):
     return
 
@@ -99,8 +99,7 @@ class NetworkSimulator:
     packet.addToPath(dst)
     packet.totalTime += edge.getTravelTime()
     packet.isDropped = edge.isDropped()
-
-    print(packet)
+    #TODO: Do something if packet is dropped.
 
     return dst
 
