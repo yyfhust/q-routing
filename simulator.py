@@ -1,11 +1,4 @@
-##
-# simulator.py
-# ---
-# Creates a simulation of a network with randomly-generated 
-# latency and packet drop rates.
-##
-
-import random as rnd
+from network import Node, Edge, Packet
 from random import shuffle
 import numpy as np
 
@@ -53,9 +46,12 @@ class Edge:
 
 class Packet:
   # Initialize path to include the source / starting node.
-  def __init__(self, ni_1, ni_2):
+  def __init__(self, src, dst):
     # Path of nodes that this packet has traversed.
-    self.path = [ni_1]
+    self.src = src
+    self.dst = dst
+
+    self.path = [src]
     self.dropped = False
     self.totalTime = 0
 
@@ -142,7 +138,7 @@ class NetworkSimulator:
     packet.addToPath(ni_2)
     packet.totalTime += edge.getTravelTime()
     packet.isDropped = edge.isDropped()
-    #TODO: Do something if packet is dropped.
+    #TODO: Do something if packet is dropped, i.e. freak the fuck out
 
     return ni_2
 
@@ -163,6 +159,9 @@ class NetworkSimulator:
       break
       
     return 0
+<<<<<<< HEAD
 
 networkSimulator = NetworkSimulator(numNodes = 40, numEdges = 400)
 networkSimulator.routePackets(n = 1000)
+=======
+>>>>>>> a7d7b9dd5a3f9553ae567a7d43137fa38067cfa9
