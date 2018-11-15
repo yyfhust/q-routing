@@ -26,27 +26,20 @@ class NetworkSimulator:
     # node in the edge.
     packet.addToPath(dst)
     edgeAttr = self.getEdgeAttr(src, dst)
-    packet.totalTime += edgeAttr.getTravelTime()
+    travelTime = edgeAttr.getTravelTime()
+    packet.totalTime += travelTime
     packet.dropped = edgeAttr.isDropped()
-    #TODO: Do something if packet is dropped, i.e. freak the fuck out
 
-  # Route a single packet from packet.src to packet.dst.
-  def routePacket(self, packet):
-    # TODO: Flag to route packet according to a random policy vs.
-    #       according to Q-values.
-    cur = packet.src
-    while cur != packet.dst:
-      neighbors = [n for n in self.G.neighbors(cur)]
-      nxt = choice(neighbors)
-      self.traverseEdge(packet, cur, nxt)
-      if packet.dropped: break
-      cur = nxt
+    return travelTime
 
   # Generate n packets and simulate a route for all of them.
-  def routePackets(self, n, verbose = False):
+  def simulateNetworkLoad(self, n, packetRouter, verbose = False):
     # TODO: Generate a packet and have it routed thru
     # different nodes, adding to total travel time and
     # if dropped.
+    total_path_length = 0
+    dropped_packets = 0
+    total_time = 0
     for k in range(n):
       # Generate new packet.
       # TODO: Do we allow packets to go to itself?
@@ -56,12 +49,14 @@ class NetworkSimulator:
         n2 = choice(list(self.G.nodes))
 
       packet = Packet(n1, n2)
-      self.routePacket(packet)
+      packetRouter.routePacket(packet)
+      total_path_length += len(packet.path) / n
+      total_time += packet.totalTime / n
+      dropped_packets += packet.dropped
 
-      if verbose:
-        # Print packet stats for debugging.
-        print("Packet: %s to %s" % (n1, n2))
-        print("  path length of  %i" % len(packet.path))
-        print("  total time of   %f" % packet.totalTime)
-        print("  dropped?        %s" % packet.dropped)
+    if verbose:
+      # Print packet stats for debugging.
+      print(" avg path length:       %f" % total_path_length)
+      print(" avg transmission time: %f" % total_time)
+      print(" dropped packets:       %i / %i" % (dropped_packets, n))
     return 0
