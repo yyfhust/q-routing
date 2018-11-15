@@ -27,9 +27,9 @@ class Node:
     self.edges.append(edge)
 
 class Edge:
-  def __init__(self, src, dst):
-    self.src = src
-    self.dst = dst
+  def __init__(self, n1, n2):
+    self.n1 = n1
+    self.n2 = n2
 
     # Generate a random latency and drop rate within a range,
     # drawn from a uniform distribution.
@@ -45,15 +45,18 @@ class Edge:
     return rnd.randint(0, 100) <= self.dropRate * 100
 
   def __eq__(self, other): 
-    return self.src == other.src and self.dst == other.src
+    return self.n1 == other.n1 and self.n2 == other.n1
 
 class Packet:
   # Initialize path to include the source / starting node.
-  def __init__(self, src, dst):
+  def __init__(self, n1, n2):
     # Path of nodes that this packet has traversed.
-    self.path = [src]
+    self.path = [n1]
     self.dropped = False
     self.totalTime = 0
+
+  def getMostRecentNode(self):
+    return self.path[-1]
 
   def addToPath(self, node):
     self.path.append(node)
@@ -76,12 +79,12 @@ class NetworkSimulator:
     for i in range(numEdges):
       x, y = self.edges[i]
 
-      src = self.nodes[x]
-      dst = self.nodes[y]
+      n1 = self.nodes[x]
+      n2 = self.nodes[y]
 
-      edge = Edge(src, dst)
-      src.addEdge(edge)
-      dst.addEdge(edge)
+      edge = Edge(n1, n2)
+      n1.addEdge(edge)
+      n2.addEdge(edge)
       self.edges[i] = edge
 
   # TODO: Save network node and edge configurations into a file.
@@ -95,13 +98,17 @@ class NetworkSimulator:
   # Route a single packet through a simulated route (an edge) 
   # and return the destination note.
   def routePacket(self, packet, edge):
-    dst = edge.dst
-    packet.addToPath(dst)
+    # Get most recently traveled node and find the other
+    # node in the edge.
+    n1 = packet.getMostRecentNode()
+    n2 = edge.n2 if n1 == edge.n1 else n1
+    
+    packet.addToPath(n2)
     packet.totalTime += edge.getTravelTime()
     packet.isDropped = edge.isDropped()
     #TODO: Do something if packet is dropped.
 
-    return dst
+    return n2
 
   # Generate n packets and simulate a route for all of them.
   def routePackets(self, n):
