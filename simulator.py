@@ -28,10 +28,7 @@ class NetworkSimulator:
       numNodeEdges = avgEdgesPerNode
       for j in range(min(len(self.nodes), numNodeEdges)):
         n2 = rnd.choice(self.nodes)
-        
-        # Avoid double edges.
-        while ((n1, n2) in self.edges): 
-          n2 = rnd.randint(0, len(self.nodes) - 1)
+        while ((n1, n2) in self.edges): n2 = rnd.choice(self.nodes)
         
         edge = Edge(n1, n2)
 
