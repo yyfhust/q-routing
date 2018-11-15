@@ -27,7 +27,7 @@ class NetworkSimulator:
     packet.addToPath(dst)
     edgeAttr = self.getEdgeAttr(src, dst)
     packet.totalTime += edgeAttr.getTravelTime()
-    packet.isDropped = edgeAttr.isDropped()
+    packet.dropped = edgeAttr.isDropped()
     #TODO: Do something if packet is dropped, i.e. freak the fuck out
 
   # Route a single packet from packet.src to packet.dst.
@@ -39,10 +39,11 @@ class NetworkSimulator:
       neighbors = [n for n in self.G.neighbors(cur)]
       nxt = choice(neighbors)
       self.traverseEdge(packet, cur, nxt)
+      if packet.dropped: break
       cur = nxt
 
   # Generate n packets and simulate a route for all of them.
-  def routePackets(self, n):
+  def routePackets(self, n, verbose = False):
     # TODO: Generate a packet and have it routed thru
     # different nodes, adding to total travel time and
     # if dropped.
@@ -56,7 +57,11 @@ class NetworkSimulator:
 
       packet = Packet(n1, n2)
       self.routePacket(packet)
-      print(packet)
 
+      if verbose:
+        # Print packet stats for debugging.
+        print("Packet: %s to %s" % (n1, n2))
+        print("  path length of  %i" % len(packet.path))
+        print("  total time of   %f" % packet.totalTime)
+        print("  dropped?        %s" % packet.dropped)
     return 0
-

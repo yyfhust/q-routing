@@ -8,5 +8,5 @@
 from simulator import NetworkSimulator
 
 if __name__ == '__main__':
-    nS = NetworkSimulator(100)
-    nS.routePackets(2)
+    n_s = NetworkSimulator(100)
+    n_s.routePackets(2, verbose=True)
