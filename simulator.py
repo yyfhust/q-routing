@@ -1,82 +1,45 @@
-from network import Node, Edge, Packet
+from network import NodeAttr, EdgeAttr, Packet
 from random import shuffle
+from random import choice
+from random import sample
 import numpy as npd
-import random as rnd
+import networkx as nx
 
 class NetworkSimulator:
   # numNodes : # of nodes in the randomly gen. network
-  # numEdges : # of edges in the randomly gen. network
-  def __init__(self, numNodes, numEdges):
-    self.numNodes = numNodes
-    self.numEdges = numEdges
-    self.packets = []
-    avgEdgesPerNode = min(1, numEdges / numNodes)
+  def __init__(self, numNodes):
+    self.G = nx.connected_watts_strogatz_graph(numNodes, 5, 0.8)
 
-    self.nodes = []
-    self.edges = set()
+    # Generate and associate attributes to node and edges in G.
+    self.nodeAttrs = {node : NodeAttr() for node in self.G.nodes}
+    self.edgeAttrs = {edge : EdgeAttr() for edge in self.G.edges}
 
-    # Randomly generate a connected graph with numNodes nodes
-    # and numEdges edges.
-    node = Node(0)
-    self.nodes.append(node)
-
-    for i in range(1, numNodes):
-      n1 = Node(i)
-
-      # Connect node to some n # of nodes already in self.nodes.
-      # Randomly generate number of nodes to connect.
-      numNodeEdges = avgEdgesPerNode
-      for j in range(min(len(self.nodes), numNodeEdges)):
-        n2 = rnd.choice(self.nodes)
-        while ((n1, n2) in self.edges): n2 = rnd.choice(self.nodes)
-
-        edge = Edge(n1, n2)
-
-      self.nodes.append(n1)
-
-    # Check if we have enough edges. If not, then add edges
-    # until we have enough edges.
-    # TODO: Hacky and redundant code. Can conslidate.
-    for i in range(numEdges - len(self.edges)):
-      n1 = rnd.choice(self.nodes)
-      n2 = rnd.choice(self.nodes)
-
-      # Avoid self loops and double
-      while (n1 == n2): n2 = rnd.choice(self.nodes)
-      # Avoid double edges.
-      while ((n1, n2) in self.edges): n2 = rnd.choice(self.nodes)
-
-      edge = Edge(n1, n2)
-      self.edges.add(edge)
-
-  # TODO: Save network node and edge configurations into a file.
-  def writeConfig(self):
-    return
-
-  # TODO: Load network node and edge configurations from a file.
-  def readConfig(self):
-    return
+  def getEdgeAttr(self, n1, n2):
+    if (n1, n2) in self.edgeAttrs: return self.edgeAttrs[(n1, n2)]
+    if (n2, n1) in self.edgeAttrs: return self.edgeAttrs[(n2, n1)]
+    return None
 
   # Route a single packet along an edge, updating its
   # total travel time and whether or not it's been dropped.
-  def traverseEdge(self, packet, edge):
+  def traverseEdge(self, packet, src, dst):
     # Get most recently traveled node and find the other
     # node in the edge.
-    n1 = packet.getMostRecentNode()
-    n2 = edge.n2 if n1 == edge.n1 else n1
-
-    packet.addToPath(n2)
-    packet.totalTime += edge.getTravelTime()
-    packet.isDropped = edge.isDropped()
+    packet.addToPath(dst)
+    edgeAttr = self.getEdgeAttr(src, dst)
+    packet.totalTime += edgeAttr.getTravelTime()
+    packet.isDropped = edgeAttr.isDropped()
     #TODO: Do something if packet is dropped, i.e. freak the fuck out
-
-    return n2
 
   # Route a single packet from packet.src to packet.dst.
   def routePacket(self, packet):
     # TODO: Flag to route packet according to a random policy vs.
     #       according to Q-values.
-    return 0
+    cur = packet.src
+    while cur != packet.dst:
+      neighbors = [n for n in self.G.neighbors(cur)]
+      nxt = choice(neighbors)
+      self.traverseEdge(packet, cur, nxt)
+      cur = nxt
 
   # Generate n packets and simulate a route for all of them.
   def routePackets(self, n):
@@ -84,9 +47,19 @@ class NetworkSimulator:
     # different nodes, adding to total travel time and
     # if dropped.
     for k in range(n):
-      # TODO: Generate new packet.
-      # TODO: self.routePacket(packet).
+      # Generate new packet.
+      # TODO: Do we allow packets to go to itself?
+      n1 = choice(list(self.G.nodes))
+      n2 = choice(list(self.G.nodes))
+      while (n1 == n2): 
+        n2 = choice(list(self.G.nodes))
+
+      packet = Packet(n1, n2)
+      self.routePacket(packet)
       break
 
     return 0
 
+# TODO: Move this elsewhere. Only here for testing.
+nS = NetworkSimulator(100)
+nS.routePackets(1000)
