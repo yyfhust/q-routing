@@ -29,12 +29,12 @@ class NetworkSimulator:
       for j in range(min(len(self.nodes), numNodeEdges)):
         n2 = rnd.choice(self.nodes)
         while ((n1, n2) in self.edges): n2 = rnd.choice(self.nodes)
-        
+
         edge = Edge(n1, n2)
 
       self.nodes.append(n1)
 
-    # Check if we have enough edges. If not, then add edges 
+    # Check if we have enough edges. If not, then add edges
     # until we have enough edges.
     # TODO: Hacky and redundant code. Can conslidate.
     for i in range(numEdges - len(self.edges)):
@@ -57,7 +57,7 @@ class NetworkSimulator:
   def readConfig(self):
     return
 
-  # Route a single packet along an edge, updating its 
+  # Route a single packet along an edge, updating its
   # total travel time and whether or not it's been dropped.
   def traverseEdge(self, packet, edge):
     # Get most recently traveled node and find the other
@@ -74,7 +74,7 @@ class NetworkSimulator:
 
   # Route a single packet from packet.src to packet.dst.
   def routePacket(self, packet):
-    # TODO: Flag to route packet according to a random policy vs. 
+    # TODO: Flag to route packet according to a random policy vs.
     #       according to Q-values.
     return 0
 
@@ -87,8 +87,6 @@ class NetworkSimulator:
       # TODO: Generate new packet.
       # TODO: self.routePacket(packet).
       break
-      
+
     return 0
 
-networkSimulator = NetworkSimulator(numNodes = 40, numEdges = 400)
-networkSimulator.routePackets(n = 1000)
