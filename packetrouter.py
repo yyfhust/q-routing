@@ -2,6 +2,7 @@ import abc
 from random import choice
 import random
 import collections
+import networkx as nx
 
 class PacketRouter:
 
@@ -73,5 +74,34 @@ class QPacketRouter(PacketRouter):
 
       # TODO: not sure how to handle dropped packets with r.t.
       # Q-routing, would we add a higher penalty to Q?
-      # if packet.dropped: break
+      if packet.dropped: break
+      cur = nxt
+
+# TODO: only works with connected graphs
+class RIPPacketRouter(PacketRouter):
+  def __init__(self, simulator, epsilon=0.05, learning_rate=0.01):
+    super().__init__(simulator)
+
+    self.routing_table = {}
+
+    for src in simulator.G.nodes():
+      for dst in simulator.G.nodes():
+        assert(nx.has_path(simulator.G, src, dst))
+
+    for src, destinations in nx.shortest_path(simulator.G).items():
+      for dst, path in destinations.items():
+        if src == dst:
+          hop = None
+        else:
+          hop = path[1]
+        self.routing_table[(src, dst)] = hop
+
+  # perform dijsktras to find shortest path to compute a routing table: (x, d -> y) from node x,
+  # with destination d, jump to y for the shortest path
+  def routePacket(self, packet):
+    cur = packet.src
+    while cur != packet.dst:
+      nxt = self.routing_table[(cur, packet.dst)]
+      self.simulator.traverseEdge(packet, cur, nxt)
+      if packet.dropped: break
       cur = nxt

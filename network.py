@@ -10,6 +10,7 @@ DROP_MULT = 1 / MAX_DROP_RATE
 MIN_LATENCY = 0
 MAX_LATENCY = 300
 LATENCY_STD = 5
+LOAD_MULTIPLIER = 0.01
 
 class NodeAttr:
   def __init__(self):
@@ -21,11 +22,18 @@ class EdgeAttr:
     # drawn from a uniform distribution.
     self.latency = rnd.randint(MIN_LATENCY, MAX_LATENCY)
     self.dropRate = float(rnd.randint(MIN_DROP_RATE * DROP_MULT, MAX_DROP_RATE  * DROP_MULT)) / DROP_MULT
+    self.load = 0
+
+  def increase_load(self):
+    self.load += 1
+
+  def decrease_load(self):
+    self.load = max(0, int(self.load * 0.75) - 1)
 
   # Generate a travel time for a particular packet from
   # a standard Gaussian distribution.
   def getTravelTime(self):
-    return rnd.gauss(self.latency, LATENCY_STD)
+    return rnd.gauss(self.latency, LATENCY_STD) * (1 + LOAD_MULTIPLIER * self.load)
 
   def isDropped(self):
     return rnd.randint(0, DROP_MULT) < self.dropRate * DROP_MULT
