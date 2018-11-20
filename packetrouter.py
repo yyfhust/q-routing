@@ -87,8 +87,17 @@ class QPacketRouter(PacketRouter):
       cur = nxt
 
   def routePacketSingleStep(self, packet, node):
-      #TODO implement
-      return None
+      if self.explore():
+        nxt = choice(list(self.simulator.G.neighbors(node)))
+      else:
+        nxt, _ = self.min_Q(node, packet.dst)
+
+      # estimated time remaining from next node
+      _, t = self.min_Q(nxt, packet.dst)
+      s = self.simulator.traverseEdge(packet, node, nxt)
+
+      self.Q[(node, packet.dst, nxt)] = self.Q[(node, packet.dst, nxt)] + self.learning_rate * (t + s - self.Q[(node, packet.dst, nxt)])
+      return nxt
 
 # TODO: only works with connected graphs
 class RIPPacketRouter(PacketRouter):
@@ -119,6 +128,8 @@ class RIPPacketRouter(PacketRouter):
       if packet.dropped: break
       cur = nxt
 
+  # TODO fix dropping packets (return None, detect in simulator and increment count)
   def routePacketSingleStep(self, packet, node):
-      #TODO implement
-      return None
+      nxt = self.routing_table[(node, packet.dst)]
+      self.simulator.traverseEdge(packet, node, nxt)
+      return nxt

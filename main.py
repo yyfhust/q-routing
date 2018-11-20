@@ -11,7 +11,7 @@ import networkx as nx
 
 if __name__ == '__main__':
   NUM_NODES = 25
-  NUM_PACKETS = 20000
+  NUM_PACKETS = 5000000
 
   n_s = NetworkSimulator(NUM_NODES)
   q_packet_router = QPacketRouter(n_s)
@@ -34,10 +34,9 @@ if __name__ == '__main__':
 
   # Parallel routing
   test_packets = n_s.generate_packets(NUM_PACKETS)
-  print("Random routing: ")
-  n_s.simulate_network_load_parallel(test_packets, random_packet_router, verbose=True)
+  print("RIP routing: ")
+  n_s.simulate_network_load_parallel(test_packets, rip_packet_router, verbose=True)
 
-  #test_packets = n_s.generate_packets(NUM_PACKETS)
-
-  #print("Q-Routing:")
-  #n_s.simulate_network_load_parallel(test_packets, q_packet_router, verbose=True)
+  test_packets = n_s.generate_packets(NUM_PACKETS)
+  print("Q-Routing:")
+  n_s.simulate_network_load_parallel(test_packets, q_packet_router, verbose=True)
