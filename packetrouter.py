@@ -15,6 +15,10 @@ class PacketRouter:
   def routePacket(self, packet):
     pass
 
+  @abc.abstractmethod
+  def routePacketSingleStep(self, packet, node):
+    pass
+
 # randomly hops packet through the network
 class RandomPacketRouter(PacketRouter):
   def routePacket(self, packet):
@@ -24,6 +28,11 @@ class RandomPacketRouter(PacketRouter):
       self.simulator.traverseEdge(packet, cur, nxt)
       if packet.dropped: break
       cur = nxt
+
+  def routePacketSingleStep(self, packet, node):
+      nxt = choice(list(self.simulator.G.neighbors(node)))
+      self.simulator.traverseEdge(packet, node, nxt)
+      return nxt
 
 # performs Q-routing based on this paper (not predictive):
 # https://bit.ly/2PYlvTR
@@ -77,6 +86,10 @@ class QPacketRouter(PacketRouter):
       if packet.dropped: break
       cur = nxt
 
+  def routePacketSingleStep(self, packet, node):
+      #TODO implement
+      return None
+
 # TODO: only works with connected graphs
 class RIPPacketRouter(PacketRouter):
   def __init__(self, simulator, epsilon=0.05, learning_rate=0.01):
@@ -105,3 +118,7 @@ class RIPPacketRouter(PacketRouter):
       self.simulator.traverseEdge(packet, cur, nxt)
       if packet.dropped: break
       cur = nxt
+
+  def routePacketSingleStep(self, packet, node):
+      #TODO implement
+      return None

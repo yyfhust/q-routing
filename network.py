@@ -11,6 +11,7 @@ MIN_LATENCY = 0
 MAX_LATENCY = 300
 LATENCY_STD = 5
 LOAD_MULTIPLIER = 0.01
+LOAD_DECAY = 0.75
 
 class NodeAttr:
   def __init__(self):
@@ -28,7 +29,7 @@ class EdgeAttr:
     self.load += 1
 
   def decrease_load(self):
-    self.load = max(0, int(self.load * 0.75) - 1)
+    self.load = max(0, int(self.load * LOAD_DECAY) - 1)
 
   # Generate a travel time for a particular packet from
   # a standard Gaussian distribution.
