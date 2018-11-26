@@ -32,7 +32,7 @@ class RandomPacketRouter(PacketRouter):
   def routePacketSingleStep(self, packet, node):
       nxt = choice(list(self.simulator.G.neighbors(node)))
       self.simulator.traverseEdge(packet, node, nxt)
-      return nxt
+      return None if packet.dropped else nxt
 
 # performs Q-routing based on this paper (not predictive):
 # https://bit.ly/2PYlvTR
@@ -97,7 +97,7 @@ class QPacketRouter(PacketRouter):
       s = self.simulator.traverseEdge(packet, node, nxt)
 
       self.Q[(node, packet.dst, nxt)] = self.Q[(node, packet.dst, nxt)] + self.learning_rate * (t + s - self.Q[(node, packet.dst, nxt)])
-      return nxt
+      return None if packet.dropped else nxt
 
 # TODO: only works with connected graphs
 class RIPPacketRouter(PacketRouter):
@@ -132,4 +132,4 @@ class RIPPacketRouter(PacketRouter):
   def routePacketSingleStep(self, packet, node):
       nxt = self.routing_table[(node, packet.dst)]
       self.simulator.traverseEdge(packet, node, nxt)
-      return nxt
+      return None if packet.dropped else nxt

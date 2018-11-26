@@ -76,11 +76,16 @@ class NetworkSimulator:
             queue = node_queues[node]
             packet_to_route = queue.get()
             next_node = packetRouter.routePacketSingleStep(packet_to_route, node)
+            if not next_node:
+                #packet was dropped
+                dropped_packets += 1
+                if node_queues[node].empty():
+                    del node_queues[node]
+                continue
             if next_node == packet_to_route.dst:
                 # packet routed successfully
-                total_path_length += len(packet_to_route.path) / n
-                total_time += packet_to_route.totalTime / n
-                dropped_packets += packet.dropped
+                total_path_length += len(packet_to_route.path)
+                total_time += packet_to_route.totalTime
             else: # add next node to appropriate queue
                 if next_node in node_queues:
                     node_queues[next_node].put(packet_to_route)
@@ -93,8 +98,10 @@ class NetworkSimulator:
 
     if verbose:
       # Print packet stats for debugging.
-      print(" avg path length:       %f" % total_path_length)
-      print(" avg transmission time: %f" % total_time)
+      avg_length = total_path_length / (n - dropped_packets)
+      avg_time = total_time / (n - dropped_packets)
+      print(" avg path length:       %f" % avg_length)
+      print(" avg transmission time: %f" % avg_time)
       print(" dropped packets:       %i / %i" % (dropped_packets, n))
 
 
