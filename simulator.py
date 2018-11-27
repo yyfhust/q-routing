@@ -5,6 +5,8 @@ from queue import Queue
 
 # every 20 packets, balance load on all edges
 LOAD_BALANCE_FREQUENCY = 20
+# number of packets sent out in each batch
+PACKETS_PER_BATCH = 5000
 
 
 class NetworkSimulator:
@@ -61,15 +63,19 @@ class NetworkSimulator:
     total_path_length = 0
     dropped_packets = 0
     total_time = 0
-    #TODO send packets in batches rather than populating queues all at once
-    for i, packet in enumerate(packets):
-        packet_src = packet.src
-        if packet_src in node_queues:
-            node_queues[packet_src].put(packet)
-        else:
-            node_queues[packet_src] = Queue()
-            node_queues[packet_src].put(packet)
-    while node_queues:
+    packet_index = 0
+    while node_queues or packet_index < n:
+        # if packets have been routed, send out another batch
+        if not node_queues:
+            for index in range(packet_index, min(packet_index + PACKETS_PER_BATCH, n)):
+                packet = packets[index]
+                packet_src = packet.src
+                if packet_src in node_queues:
+                    node_queues[packet_src].put(packet)
+                else:
+                    node_queues[packet_src] = Queue()
+                    node_queues[packet_src].put(packet)
+            packet_index = packet_index + PACKETS_PER_BATCH
         # cycle through nodes, processing one packet at each node at  a time
         nodes = list(node_queues.keys())
         for node in nodes:
@@ -125,6 +131,7 @@ class NetworkSimulator:
 
     if verbose:
       # Print packet stats for debugging.
+      #TODO should path length be counted if the packet is dropped? check are these stats right
       print(" avg path length:       %f" % total_path_length)
       print(" avg transmission time: %f" % total_time)
       print(" dropped packets:       %i / %i" % (dropped_packets, n))

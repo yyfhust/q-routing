@@ -11,7 +11,7 @@ import networkx as nx
 
 if __name__ == '__main__':
   NUM_NODES = 25
-  NUM_PACKETS = 100000
+  NUM_PACKETS = 5000000
 
   n_s = NetworkSimulator(NUM_NODES)
   q_packet_router = QPacketRouter(n_s)
