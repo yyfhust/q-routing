@@ -1,7 +1,7 @@
 from network import NodeAttr, EdgeAttr, Packet
 from random import choice
 import networkx as nx
-from queue import Queue
+from collections import deque
 
 # every 20 packets, balance load on all edges
 LOAD_BALANCE_FREQUENCY = 20
@@ -57,50 +57,47 @@ class NetworkSimulator:
 
 
   #TODO nodes with larger queues have higher latencies?
-  def simulate_network_load_parallel(self, packets, packetRouter, verbose = False):
+  def simulate_network_load_parallel(self, packets, packetRouter, verbose=False):
     node_queues = {}
     n = len(packets)
-    total_path_length = 0
-    dropped_packets = 0
-    total_time = 0
-    packet_index = 0
+    total_path_length, dropped_packets, total_time, packet_index = 0, 0, 0, 0
     while node_queues or packet_index < n:
-        # if packets have been routed, send out another batch
-        if not node_queues:
-            for index in range(packet_index, min(packet_index + PACKETS_PER_BATCH, n)):
-                packet = packets[index]
-                packet_src = packet.src
-                if packet_src in node_queues:
-                    node_queues[packet_src].put(packet)
-                else:
-                    node_queues[packet_src] = Queue()
-                    node_queues[packet_src].put(packet)
-            packet_index = packet_index + PACKETS_PER_BATCH
-        # cycle through nodes, processing one packet at each node at  a time
-        nodes = list(node_queues.keys())
-        for node in nodes:
-            queue = node_queues[node]
-            packet_to_route = queue.get()
-            next_node = packetRouter.routePacketSingleStep(packet_to_route, node)
-            if not next_node:
-                #packet was dropped
-                dropped_packets += 1
-                if node_queues[node].empty():
-                    del node_queues[node]
-                continue
-            if next_node == packet_to_route.dst:
-                # packet routed successfully
-                total_path_length += len(packet_to_route.path)
-                total_time += packet_to_route.totalTime
-            else: # add next node to appropriate queue
-                if next_node in node_queues:
-                    node_queues[next_node].put(packet_to_route)
-                else:
-                    node_queues[next_node] = Queue()
-                    node_queues[next_node].put(packet_to_route)
-            if node_queues[node].empty():
-                del node_queues[node]
-        self.balance_load()
+      # if packets have been routed, send out another batch
+      if not node_queues:
+        for index in range(packet_index, min(packet_index + PACKETS_PER_BATCH, n)):
+          packet = packets[index]
+          packet_src = packet.src
+          if packet_src in node_queues:
+            node_queues[packet_src].append(packet)
+          else:
+            node_queues[packet_src] = deque()
+            node_queues[packet_src].append(packet)
+        packet_index = packet_index + PACKETS_PER_BATCH
+      # cycle through nodes, processing one packet at each node at  a time
+      nodes = list(node_queues.keys())
+      for node in nodes:
+        queue = node_queues[node]
+        packet_to_route = queue.popleft()
+        next_node = packetRouter.routePacketSingleStep(packet_to_route, node)
+        if not next_node:
+          #packet was dropped
+          dropped_packets += 1
+          if not node_queues[node]:
+            del node_queues[node]
+          continue
+        if next_node == packet_to_route.dst:
+          # packet routed successfully
+          total_path_length += len(packet_to_route.path)
+          total_time += packet_to_route.totalTime
+        else: # add next node to appropriate queue
+          if next_node in node_queues:
+            node_queues[next_node].append(packet_to_route)
+          else:
+            node_queues[next_node] = deque()
+            node_queues[next_node].append(packet_to_route)
+        if not node_queues[node]:
+          del node_queues[node]
+      self.balance_load()
 
     if verbose:
       # Print packet stats for debugging.
@@ -109,9 +106,6 @@ class NetworkSimulator:
       print(" avg path length:       %f" % avg_length)
       print(" avg transmission time: %f" % avg_time)
       print(" dropped packets:       %i / %i" % (dropped_packets, n))
-
-
-
 
   # Generate n packets and simulate a route for all of them.
   def simulate_network_load(self, packets, packetRouter, verbose = False):
