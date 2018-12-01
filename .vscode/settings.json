@@ -1,0 +1,4 @@
+{
+  "python.pythonPath": "cs238/bin/python",
+  "python.linting.enabled": false
+}

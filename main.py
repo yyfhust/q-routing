@@ -20,9 +20,9 @@ if __name__ == '__main__':
   DROP_NODE_CONNECTIVITY = 0.6
 
   # load simulator
-  NUM_PACKETS = 2000000
-  PACKETS_PER_BATCH = 4000
-  DROP_NODES = False
+  NUM_PACKETS = 200000
+  PACKETS_PER_BATCH = 2000
+  DROP_NODES = True
 
   # for graphing
   KERNEL_SIZE = 2000
