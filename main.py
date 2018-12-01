@@ -21,8 +21,8 @@ if __name__ == '__main__':
 
   # load simulator
   NUM_PACKETS = 200000
-  PACKETS_PER_BATCH = 4000
-  DROP_NODES = False
+  PACKETS_PER_BATCH = 2000
+  DROP_NODES = True
 
   # for graphing
   KERNEL_SIZE = 2000

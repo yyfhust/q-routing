@@ -56,6 +56,7 @@ class QPacketRouter(PacketRouter):
     return random.random() < self.epsilon
 
   # returns best next step for packet from x to d for minimized Q
+  # gracefully handles dropped nodes, since it only checks Q values of neighbours currently in the graph
   def min_Q(self, x, d):
     x_neighbours = self.simulator.G.neighbors(x)
     min_Q = float('inf')
@@ -131,5 +132,7 @@ class RIPPacketRouter(PacketRouter):
   # TODO fix dropping packets (return None, detect in simulator and increment count)
   def routePacketSingleStep(self, packet, node):
     nxt = self.routing_table[(node, packet.dst)]
+    if not self.simulator.G.has_edge(node, nxt):
+      nxt = choice(list(self.simulator.G.neighbors(node)))
     self.simulator.traverseEdge(packet, node, nxt)
     return None if packet.dropped else nxt

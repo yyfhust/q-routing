@@ -58,6 +58,7 @@ class NetworkSimulator:
   def traverseEdge(self, packet, src, dst):
     # Get most recently traveled node and find the other
     # node in the edge.
+    assert((src, dst) in self.G.edges or (dst, src) in self.G.edges)
     packet.addToPath(dst)
     edgeAttr = self.get_edge_attr(src, dst)
     edgeAttr.increase_load()
