@@ -20,7 +20,7 @@ if __name__ == '__main__':
   DROP_NODE_CONNECTIVITY = 0.6
 
   # load simulator
-  NUM_PACKETS = 200000
+  NUM_PACKETS = 2000000
   PACKETS_PER_BATCH = 4000
   DROP_NODES = False
 
@@ -31,6 +31,7 @@ if __name__ == '__main__':
                          drop_node_connectivity=DROP_NODE_CONNECTIVITY)
   q_packet_router = QPacketRouter(n_s)
   rip_packet_router = RIPPacketRouter(n_s)
+  q_drop_packet_router = QPacketRouter(n_s, penalize_drops = True)
 
   test_packets = n_s.generate_packets(NUM_PACKETS)
   kernel_size = KERNEL_SIZE
@@ -54,6 +55,19 @@ if __name__ == '__main__':
   total_times = [packet.totalTime for packet in test_packets]
   q_average_times = get_averages(total_times, kernel_size)
 
+  # reset network
+  for packet in test_packets: packet.reset()
+  if DROP_NODES:
+    n_s.reset_dropped_nodes()
+
+  print("Q-Routing w penalizing drops:")
+  n_s.simulate_network_load_parallel(test_packets, q_packet_router, packets_per_batch=PACKETS_PER_BATCH,
+                                     drop_nodes=DROP_NODES, verbose=True)
+
+  total_times = [packet.totalTime for packet in test_packets]
+  q_drop_average_times = get_averages(total_times, kernel_size)
+
+  #TODO add plot for q_drop
   fig = plt.figure()
   ax1 = fig.add_subplot(111)
   ax1.scatter(range(len(q_average_times)), rip_average_times, label="rip")

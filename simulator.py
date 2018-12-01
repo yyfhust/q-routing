@@ -82,8 +82,8 @@ class NetworkSimulator:
 
   def print_load_results(self, n, total_path_length, dropped_packets, total_time):
     # Print packet stats for debugging.
-    avg_length = total_path_length / (n - dropped_packets)
-    avg_time = total_time / (n - dropped_packets)
+    avg_length = total_path_length / n
+    avg_time = total_time / n
     print(" avg path length:       %f" % avg_length)
     print(" avg transmission time: %f" % avg_time)
     print(" dropped packets:       %i / %i" % (dropped_packets, n))
@@ -96,12 +96,12 @@ class NetworkSimulator:
       queue = node_queues[node]
       packet_to_route = queue.popleft()
       next_node = packet_router.routePacketSingleStep(packet_to_route, node)
-      if not next_node:
+      if next_node is None:
         # packet was dropped
         dropped_packets += 1
-        if not node_queues[node]:
-          del node_queues[node]
-        continue
+        next_node = packet_to_route.src
+        total_time += packet_to_route.totalTime
+        packet_to_route.reset()
       if next_node == packet_to_route.dst:
         # packet routed successfully
         total_path_length += len(packet_to_route.path)

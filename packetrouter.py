@@ -43,13 +43,14 @@ class RandomPacketRouter(PacketRouter):
 # could be tricky, since packets are being routed in tandem
 class QPacketRouter(PacketRouter):
 
-  def __init__(self, simulator, epsilon=0.05, learning_rate=0.01):
+  def __init__(self, simulator, penalize_drops=False, epsilon=0.05, learning_rate=0.01):
     super().__init__(simulator)
     # Q[(x, d, y)] = time that node x estimates it takes to deliver a packet P bound
     # for node d by way of x's neighbour y
     self.Q = collections.defaultdict(float)
     self.epsilon = epsilon
     self.learning_rate = learning_rate
+    self.penalize_drops = penalize_drops
 
   # returns True with p = epsilon
   def explore(self):
@@ -78,11 +79,11 @@ class QPacketRouter(PacketRouter):
       # estimated time remaining from next node
       _, t = self.min_Q(nxt, packet.dst)
       s = self.simulator.traverseEdge(packet, cur, nxt)
+      if self.penalize_drops and packet.dropped:
+          t = self.min_Q(packet.src, packet.dst)
 
       self.Q[(cur, packet.dst, nxt)] = self.Q[(cur, packet.dst, nxt)] + self.learning_rate * (t + s - self.Q[(cur, packet.dst, nxt)])
 
-      # TODO: not sure how to handle dropped packets with r.t.
-      # Q-routing, would we add a higher penalty to Q?
       if packet.dropped: break
       cur = nxt
 
