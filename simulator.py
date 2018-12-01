@@ -85,9 +85,9 @@ class NetworkSimulator:
             if not next_node:
                 #packet was dropped
                 dropped_packets += 1
-                if node_queues[node].empty():
-                    del node_queues[node]
-                continue
+                total_time += packet_to_route.totalTime
+                packet_to_route.reset()
+                next_node = packet_to_route.src
             if next_node == packet_to_route.dst:
                 # packet routed successfully
                 total_path_length += len(packet_to_route.path)
@@ -121,7 +121,6 @@ class NetworkSimulator:
     total_time = 0
     for i, packet in enumerate(packets):
       # Generate new packet.
-      # TODO: Do we allow packets to go to itself?
       if i % LOAD_BALANCE_FREQUENCY == 0:
         self.balance_load()
       packetRouter.routePacket(packet)

@@ -128,7 +128,6 @@ class RIPPacketRouter(PacketRouter):
       if packet.dropped: break
       cur = nxt
 
-  # TODO fix dropping packets (return None, detect in simulator and increment count)
   def routePacketSingleStep(self, packet, node):
       nxt = self.routing_table[(node, packet.dst)]
       self.simulator.traverseEdge(packet, node, nxt)

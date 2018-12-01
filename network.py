@@ -56,6 +56,13 @@ class Packet:
   def addToPath(self, node):
     self.path.append(node)
 
+  def resetPath(self):
+    self.path = [self.src]
+    self.dropped = False
+
+  def getSrc(self):
+    return self.src
+
   def reset(self):
     self.path = [self.src]
     self.dropped = False
