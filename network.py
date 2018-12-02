@@ -11,7 +11,7 @@ MIN_LATENCY = 0
 MAX_LATENCY = 300
 LATENCY_STD = 5
 LOAD_MULTIPLIER = 0.01
-LOAD_DECAY = 0.75
+LOAD_DECAY = 0.01
 
 class NodeAttr:
   def __init__(self):
@@ -24,12 +24,13 @@ class EdgeAttr:
     self.latency = rnd.randint(MIN_LATENCY, MAX_LATENCY)
     self.dropRate = float(rnd.randint(MIN_DROP_RATE * DROP_MULT, MAX_DROP_RATE  * DROP_MULT)) / DROP_MULT
     self.load = 0
+    self.dropped_packets = 0
 
   def increase_load(self):
     self.load += 1
 
   def decrease_load(self):
-    self.load = max(0, int(self.load * LOAD_DECAY) - 1)
+    self.load = self.load * LOAD_DECAY
 
   # Generate a travel time for a particular packet from
   # a standard Gaussian distribution.
@@ -37,7 +38,10 @@ class EdgeAttr:
     return rnd.gauss(self.latency, LATENCY_STD) * (1 + LOAD_MULTIPLIER * self.load)
 
   def isDropped(self):
-    return rnd.randint(0, DROP_MULT) < self.dropRate * DROP_MULT
+    isDropped = rnd.randint(0, DROP_MULT) < self.dropRate * DROP_MULT
+    # TODO: Maybe this isn't the best place for dropped_packets += 1 logic.
+    if isDropped: self.dropped_packets += 1
+    return isDropped
 
 class Packet:
   # Initialize path to include the source / starting node.
@@ -66,6 +70,7 @@ class Packet:
   def reset(self):
     self.path = [self.src]
     self.dropped = False
+    self.dropped_packets = 0
     self.totalTime = 0
 
   def __str__(self):

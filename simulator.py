@@ -97,21 +97,26 @@ class NetworkSimulator:
       queue = node_queues[node]
       packet_to_route = queue.popleft()
       next_node = packet_router.routePacketSingleStep(packet_to_route, node)
+
+      # Reroute packet to beginning if packet was dropped.
       if next_node is None:
-        # packet was dropped
         dropped_packets += 1
         next_node = packet_to_route.src
         total_time += packet_to_route.totalTime
         packet_to_route.reset()
+
+      # Handle the next node.
       if next_node == packet_to_route.dst:
         # packet routed successfully
         total_path_length += len(packet_to_route.path)
         total_time += packet_to_route.totalTime
-      else:  # add next node to appropriate queue
+      else:  
+        # add next node to appropriate queue
         if next_node in node_queues:
           node_queues[next_node].append(packet_to_route)
         else:
           node_queues[next_node] = deque([packet_to_route])
+
       if not node_queues[node]:
         del node_queues[node]
     return total_path_length, dropped_packets, total_time

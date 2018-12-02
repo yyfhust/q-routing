@@ -30,7 +30,9 @@ if __name__ == '__main__':
   routers = {
     'RIP Router' : RIPPacketRouter(n_s),
     'Q Routing' : QPacketRouter(n_s),
-    'Q-Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True)
+    'Q-Routing w/ RIP Hybrid' : QPacketRouter(n_s, rip_hybrid = True, 
+                                              penalize_drops = True)
+    # 'Q-Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True)
   }
   test_packets = n_s.generate_packets(NUM_PACKETS)
 
