@@ -124,14 +124,14 @@ class RIPPacketRouter(PacketRouter):
 #       Seems to me a reasonable thing to provide to a router.
 class HybridRIPQPacketRouter(QPacketRouter, RIPPacketRouter):
  
-  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01, qlearn_threshold_multiplier=3000):
+  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01, qlearn_threshold_multiplier=4000):
     super().__init__(simulator, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01)
  
     self.elapsed = 0
     self.qlearn_threshold = qlearn_threshold_multiplier * num_nodes
  
   def explore(self):
-    if self.elapsed < self.qlearn_threshold:
+    if random.random() > self.epsilon * 0.1 and self.elapsed < self.qlearn_threshold:
       return ActionType.RIP
     elif random.random() < self.epsilon:
       return ActionType.EXPLORE

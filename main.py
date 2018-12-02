@@ -37,4 +37,4 @@ if __name__ == '__main__':
 
   # Runs n_s.simulate_network_load_parallel() for each router in routers.
   times = Util.simulate_packet_routing(n_s, routers, test_packets, KERNEL_SIZE, PACKETS_PER_BATCH, DROP_NODES)
-  Util.plot_times(times)
+  Util.plot_times(times, KERNEL_SIZE)

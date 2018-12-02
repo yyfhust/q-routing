@@ -21,7 +21,7 @@ def simulate_packet_routing(n_s, routers, test_packets, kernel_size, packets_per
   
   return times
 
-def plot_times(times):
+def plot_times(times, kernel_size):
   fig = plt.figure()
   ax1 = fig.add_subplot(111)
 
@@ -30,5 +30,5 @@ def plot_times(times):
 
   plt.legend(loc='upper left')
   plt.ylabel("transmission time (ms)")
-  plt.xlabel("iteration (100 packets)")
+  plt.xlabel("iteration (kernel sz of %i packets)" % kernel_size)
   plt.savefig('rip-vs-qr-no-drop.png', dpi=256)
