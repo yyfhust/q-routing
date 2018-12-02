@@ -2,6 +2,8 @@ from network import NodeAttr, EdgeAttr, Packet
 import random
 import networkx as nx
 from collections import deque
+import copy
+from copy import deepcopy
 
 # every 20 packets, balance load on all edges
 LOAD_BALANCE_FREQUENCY = 20
@@ -18,13 +20,29 @@ class NetworkSimulator:
     self.nodes_to_drop = list(set(self.G.nodes) - set(self.constant_nodes))
     self.dropped_nodes = []
 
+    # TODO: Set these as reference just to ensure we reset properly.
+    #       May not be most elegant, but guarantees proper reset.
+    self.ref_G = self.G.copy()
+    self.ref_nodes_to_drop = copy.deepcopy(self.nodes_to_drop)
+
     # Generate and associate attributes to node and edges in G.
     self.node_attrs = {node : NodeAttr() for node in self.G.nodes}
     self.edge_attrs = {edge : EdgeAttr() for edge in self.G.edges}
 
+  def reset(self):
+    for edge, edge_attr in self.edge_attrs.items():
+      edge_attr.reset()
+    self.reset_dropped_nodes()
+
+  def reset_dropped_nodes(self):
+    self.G = self.ref_G.copy()
+    self.nodes_to_drop = copy.deepcopy(self.ref_nodes_to_drop)
+    self.dropped_nodes = []
+    self.dropped_edges = []
+
   def generate_drop_nodes(self, num_drop_nodes, drop_node_connectivity):
     num_constant_nodes = len(self.G.nodes)
-    self.drop_edges = []
+    self.dropped_edges = []
     self.nodes_to_drop = []
     self.dropped_nodes = []
     for i in range(num_drop_nodes):
@@ -34,19 +52,13 @@ class NetworkSimulator:
       self.nodes_to_drop.append(node_id)
       edges = [(node_id, x) for x in neighbours]
       self.G.add_edges_from(edges)
-      self.drop_edges += edges
+      self.dropped_edges += edges
 
   def drop_node(self):
     if self.nodes_to_drop:
       n = random.choice(self.nodes_to_drop)
       self.G.remove_node(n)
       self.nodes_to_drop.remove(n)
-
-  def reset_dropped_nodes(self):
-    self.G.add_nodes_from(self.dropped_nodes)
-    self.nodes_to_drop = self.nodes_to_drop + self.dropped_nodes
-    self.dropped_nodes = []
-    self.G.add_edges_from(self.drop_edges)
 
   def get_edge_attr(self, n1, n2):
     if (n1, n2) in self.edge_attrs: return self.edge_attrs[(n1, n2)]

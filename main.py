@@ -6,13 +6,13 @@
 ##
 
 from simulator import NetworkSimulator
-from packetrouter import QPacketRouter, RandomPacketRouter, RIPPacketRouter
+from packetrouter import QPacketRouter, HybridRIPQPacketRouter, RandomPacketRouter, RIPPacketRouter
 from matplotlib import pyplot as plt
 import util as Util
 
 if __name__ == '__main__':
   # network settings
-  NUM_NODES = 40
+  NUM_NODES = 50
   DROP_NODE_FRACTION = 0.8
   DROP_NODE_CONNECTIVITY = 0.6
 
@@ -29,10 +29,9 @@ if __name__ == '__main__':
   # Initialize all packet routers.
   routers = {
     'RIP Router' : RIPPacketRouter(n_s),
-    'Q Routing' : QPacketRouter(n_s),
-    'Q-Routing w/ RIP Hybrid' : QPacketRouter(n_s, rip_hybrid = True, 
-                                              penalize_drops = True)
-    # 'Q-Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True)
+    'Q-Routing w/ RIP Hybrid' : HybridRIPQPacketRouter(n_s, NUM_NODES, penalize_drops = True),
+    'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True)
+    # 'Vanilla Q Routing' : QPacketRouter(n_s),
   }
   test_packets = n_s.generate_packets(NUM_PACKETS)
 

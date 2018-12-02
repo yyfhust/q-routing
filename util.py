@@ -7,7 +7,7 @@ def get_averages(total_times, kernel_size):
 # TODO: Move this into simulator or packet router.
 def simulate_packet_routing(n_s, routers, test_packets, kernel_size, packets_per_batch, drop_nodes):
   times = {}
-  
+
   for name, router in routers.items():
     print("%s: " % name)
     n_s.simulate_network_load_parallel(test_packets, router, packets_per_batch=packets_per_batch, drop_nodes=drop_nodes, verbose=True)
@@ -16,9 +16,8 @@ def simulate_packet_routing(n_s, routers, test_packets, kernel_size, packets_per
     times[name] = get_averages(total_times, kernel_size)
 
     # Reset network after simulation.
+    n_s.reset()
     for packet in test_packets: packet.reset()
-    if drop_nodes:
-      n_s.reset_dropped_nodes()
   
   return times
 

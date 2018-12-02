@@ -17,6 +17,9 @@ class NodeAttr:
   def __init__(self):
     self.Q = 0
 
+  def reset(self):
+    self.Q = 0
+
 class EdgeAttr:
   def __init__(self):
     # Generate a random latency and drop rate within a range,
@@ -42,6 +45,10 @@ class EdgeAttr:
     # TODO: Maybe this isn't the best place for dropped_packets += 1 logic.
     if isDropped: self.dropped_packets += 1
     return isDropped
+
+  def reset(self):
+    self.load = 0
+    self.dropped_packets = 0
 
 class Packet:
   # Initialize path to include the source / starting node.
