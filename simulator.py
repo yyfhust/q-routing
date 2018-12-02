@@ -114,8 +114,10 @@ class NetworkSimulator:
       if next_node is None:
         dropped_packets += 1
         next_node = packet_to_route.src
+        packet_total_time = packet_to_route.totalTime
         total_time += packet_to_route.totalTime
         packet_to_route.reset()
+        packet_to_route.totalTime = packet_total_time
 
       # Handle the next node.
       if next_node == packet_to_route.dst:

@@ -12,7 +12,7 @@ import util as Util
 
 if __name__ == '__main__':
   # network settings
-  NUM_NODES = 50
+  NUM_NODES = 80
   DROP_NODE_FRACTION = 0.8
   DROP_NODE_CONNECTIVITY = 0.6
 

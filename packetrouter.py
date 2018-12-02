@@ -104,7 +104,7 @@ class ActionType(Enum):
 
 class HybridRIPQPacketRouter(PacketRouter):
 
-  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01, elapsed_multiplier=40, qlearn_threshold_multiplier=2500):
+  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01, elapsed_multiplier=40, qlearn_threshold_multiplier=3000):
     super().__init__(simulator)
     # Q[(x, d, y)] = time that node x estimates it takes to deliver a packet P bound
     # for node d by way of x's neighbour y
