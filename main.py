@@ -13,8 +13,8 @@ import util as Util
 if __name__ == '__main__':
   # network settings
   NUM_NODES = 80
-  DROP_NODE_FRACTION = 0.8
-  DROP_NODE_CONNECTIVITY = 0.6
+  DROP_NODE_FRACTION = 0.75
+  DROP_NODE_CONNECTIVITY = 0.4
 
   # load simulator
   NUM_PACKETS = 200000
