@@ -138,32 +138,35 @@ class NetworkSimulator:
         if drop_nodes:
           self.drop_node()
         packet_index = self.send_packets(node_queues, packets, packet_index, packets_per_batch)
-      total_path_length, dropped_packets, total_time = self.propagate_packets(packet_router, node_queues,
-                                                                              total_path_length, dropped_packets,
-                                                                              total_time)
+
+      # TODO: Hacky and ugly, but line length was too damn long.
+      a, b, c = self.propagate_packets(packet_router, node_queues,
+                                      total_path_length, dropped_packets, total_time)
+      total_path_length, dropped_packets, total_time = a, b, c
       self.balance_load()
     if verbose:
       self.print_load_results(len(packets), total_path_length, dropped_packets, total_time)
 
   # Generate n packets and simulate a route for all of them.
-  def simulate_network_load(self, packets, packetRouter, verbose = False):
-    n = len(packets)
-    total_path_length = 0
-    dropped_packets = 0
-    total_time = 0
-    for i, packet in enumerate(packets):
-      # Generate new packet.
-      if i % LOAD_BALANCE_FREQUENCY == 0:
-        self.balance_load()
-      packetRouter.routePacket(packet)
-      total_path_length += len(packet.path) / n
-      total_time += packet.totalTime / n
-      dropped_packets += packet.dropped
+  # def simulate_network_load(self, packets, packetRouter, verbose = False):
+  #   n = len(packets)
+  #   total_path_length = 0
+  #   dropped_packets = 0
+  #   total_time = 0
+  #   for i, packet in enumerate(packets):
+  #     # Generate new packet.
+  #     if i % LOAD_BALANCE_FREQUENCY == 0:
+  #       self.balance_load()
+  #     packetRouter.routePacket(packet)
+  #     total_path_length += len(packet.path) / n
+  #     total_time += packet.totalTime / n
+  #     dropped_packets += packet.dropped
 
-    if verbose:
-      # Print packet stats for debugging.
-      #TODO should path length be counted if the packet is dropped? check are these stats right
-      print(" avg path length:       %f" % total_path_length)
-      print(" avg transmission time: %f" % total_time)
-      print(" dropped packets:       %i / %i" % (dropped_packets, n))
-    return 0
+  #   if verbose:
+
+  #     # Print packet stats for debugging.
+  #     #TODO should path length be counted if the packet is dropped? check are these stats right
+  #     print(" avg path length:       %f" % total_path_length)
+  #     print(" avg transmission time: %f" % total_time)
+  #     print(" dropped packets:       %i / %i" % (dropped_packets, n))
+  #   return 0
