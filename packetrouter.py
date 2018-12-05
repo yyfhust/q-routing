@@ -3,7 +3,6 @@ from random import choice
 import random
 import collections
 import networkx as nx
-import math
 from enum import Enum
  
 class PacketRouter(object):

@@ -33,6 +33,9 @@ class NetworkSimulator:
     # Generate and associate attributes to node and edges in G.
     self.node_attrs = {node : NodeAttr() for node in self.G.nodes}
     self.edge_attrs = {edge : EdgeAttr() for edge in self.G.edges}
+
+    # Node queues, requires reset after simulation
+    self.node_queues = {}
  
   def reset(self):
     for edge, edge_attr in self.edge_attrs.items():
@@ -41,6 +44,10 @@ class NetworkSimulator:
     # Reset graph and droppable_nodes.
     self.G = self.ref_G.copy()
     self.droppable_nodes = copy.deepcopy(self.ref_droppable_nodes)
+
+    # Reset node packet queues
+    self.node_queues = {}
+
  
   def generate_droppable_nodes(self, num_drop_nodes, drop_node_connectivity):
     num_constant_nodes = len(self.G.nodes)
@@ -75,10 +82,13 @@ class NetworkSimulator:
     # node in the edge.
     assert((src, dst) in self.G.edges or (dst, src) in self.G.edges)
     packet.addToPath(dst)
+
+    dstNodeAttr = self.node_attrs[dst]
     edgeAttr = self.get_edge_attr(src, dst)
     edgeAttr.increase_load()
     travelTime = edgeAttr.getTravelTime()
     packet.totalTime += travelTime
+    packet.totalTime += dstNodeAttr.packet_queue_time * len(self.node_queues.get(dst, []))
     packet.dropped = edgeAttr.isDropped()
  
     return travelTime
@@ -106,14 +116,14 @@ class NetworkSimulator:
     print(" dropped packets:       %i / %i" % (network_stats.dropped_packets, n))
  
   # Iterate through node queues and propagate packets through the network.
-  def propagate_packets(self, packet_router, node_queues, network_stats):
+  def propagate_packets(self, packet_router, network_stats):
     # Cycle through nodes, processing one packet at each node at a time.
-    nodes = list(node_queues.keys())
+    nodes = list(self.node_queues.keys())
     for node in nodes:
       # Pop a node from the queue to process its packets.
-      queue = node_queues[node]
+      queue = self.node_queues[node]
       packet_to_route = queue.popleft()
-      if not node_queues[node]: del node_queues[node]
+      if not self.node_queues[node]: del self.node_queues[node]
 
       next_node = packet_router.routePacketSingleStep(packet_to_route, node)
 
@@ -139,17 +149,17 @@ class NetworkSimulator:
         network_stats.total_time += packet_to_route.totalTime
       else:
         # Add next node to appropriate queue.
-        if next_node not in node_queues: node_queues[next_node] = deque()
-        node_queues[next_node].append(packet_to_route)
+        if next_node not in self.node_queues: self.node_queues[next_node] = deque()
+        self.node_queues[next_node].append(packet_to_route)
 
     return network_stats
  
   # Sends out a new batch of packets.
-  def send_packets(self, node_queues, packets, packet_index, packets_per_batch):
+  def send_packets(self, packets, packet_index, packets_per_batch):
     for index in range(packet_index, min(packet_index + packets_per_batch, len(packets))):
       packet = packets[index]
-      if packet.src not in node_queues: node_queues[packet.src] = deque()
-      node_queues[packet.src].append(packet)
+      if packet.src not in self.node_queues: self.node_queues[packet.src] = deque()
+      self.node_queues[packet.src].append(packet)
  
     return packet_index + packets_per_batch
  
@@ -157,18 +167,17 @@ class NetworkSimulator:
   def simulate_network_load_parallel(self, packets, packet_router,
                                      packets_per_batch=5000,
                                      drop_nodes=False, verbose=False):
-    node_queues = {}
     network_stats = NetworkStats()
     packet_index = 0
 
     # Process batches of packets at a time.
-    while node_queues or packet_index < len(packets):
+    while self.node_queues or packet_index < len(packets):
       # If packets have been routed, send out another batch.
-      if not node_queues:
+      if not self.node_queues:
         if drop_nodes: self.drop_node()
-        packet_index = self.send_packets(node_queues, packets, packet_index, packets_per_batch)
+        packet_index = self.send_packets(packets, packet_index, packets_per_batch)
  
-      network_stats = self.propagate_packets(packet_router, node_queues, network_stats)
+      network_stats = self.propagate_packets(packet_router, network_stats)
       self.balance_load()
     if verbose:
       self.print_load_results(len(packets), network_stats)
