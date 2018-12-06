@@ -3,8 +3,7 @@ import random
 import networkx as nx
 from collections import deque
 import copy
-from copy import deepcopy
- 
+
 # every 20 packets, balance load on all edges
 LOAD_BALANCE_FREQUENCY = 20
 MAX_TIME_OUT = 4000
@@ -31,8 +30,8 @@ class NetworkSimulator:
     self.ref_droppable_nodes = copy.deepcopy(self.droppable_nodes)
  
     # Generate and associate attributes to node and edges in G.
-    self.node_attrs = {node : NodeAttr() for node in self.G.nodes}
-    self.edge_attrs = {edge : EdgeAttr() for edge in self.G.edges}
+    self.node_attrs = {node: NodeAttr() for node in self.G.nodes}
+    self.edge_attrs = {edge: EdgeAttr() for edge in self.G.edges}
 
     # Node queues, requires reset after simulation
     self.node_queues = {}
@@ -47,7 +46,6 @@ class NetworkSimulator:
 
     # Reset node packet queues
     self.node_queues = {}
-
  
   def generate_droppable_nodes(self, num_drop_nodes, drop_node_connectivity):
     num_constant_nodes = len(self.G.nodes)
@@ -80,12 +78,12 @@ class NetworkSimulator:
   def traverseEdge(self, packet, src, dst):
     # Get most recently traveled node and find the other
     # node in the edge.
-    assert((src, dst) in self.G.edges or (dst, src) in self.G.edges)
+    # assert((src, dst) in self.G.edges or (dst, src) in self.G.edges)
     packet.addToPath(dst)
 
     dstNodeAttr = self.node_attrs[dst]
     edgeAttr = self.get_edge_attr(src, dst)
-    edgeAttr.increase_load()
+    # edgeAttr.increase_load()
     travelTime = edgeAttr.getTravelTime()
     packet.totalTime += travelTime
     packet.totalTime += dstNodeAttr.packet_queue_time * len(self.node_queues.get(dst, []))
@@ -178,6 +176,6 @@ class NetworkSimulator:
         packet_index = self.send_packets(packets, packet_index, packets_per_batch)
  
       network_stats = self.propagate_packets(packet_router, network_stats)
-      self.balance_load()
+      # self.balance_load()
     if verbose:
       self.print_load_results(len(packets), network_stats)

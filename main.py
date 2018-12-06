@@ -7,19 +7,18 @@
 
 from simulator import NetworkSimulator
 from packetrouter import QPacketRouter, HybridRIPQPacketRouter, RandomPacketRouter, RIPPacketRouter
-from matplotlib import pyplot as plt
 import util as Util
 
 if __name__ == '__main__':
   # network settings
-  NUM_NODES = 80
+  NUM_NODES = 30
   DROP_NODE_FRACTION = 0.75
   DROP_NODE_CONNECTIVITY = 0.4
 
   # load simulator
-  NUM_PACKETS = 200000
+  NUM_PACKETS = 500000
   PACKETS_PER_BATCH = 2000
-  DROP_NODES = False
+  DROP_NODES = True
 
   # for graphing
   KERNEL_SIZE = 2000

@@ -1,10 +1,12 @@
 import random as rnd
 
+
 # These drop rates are based off of a really rough Google
 # search, so, take with a grain of salt.
 MIN_DROP_RATE = 0
 MAX_DROP_RATE = 0.05
 DROP_MULT = 1 / MAX_DROP_RATE
+
 
 # Latency rates in ms.
 MIN_LATENCY = 0
@@ -13,12 +15,14 @@ LATENCY_STD = 5
 LOAD_MULTIPLIER = 0.01
 LOAD_DECAY = 0.001
 
+
 # Node queue processing
 # Found on wikipedia that 100Mb/s network card is reasonable (might be lower for a mesh network with low-quality hardware)
 # Max size of an ethernet packet is 1500 bytes
 # Therefore, ~50,000 packets / s -> 50 packets/ms
 # Packet processing time = 1/50 ms -> 0.02 ms
 PACKET_QUEUE_TIME = 0.02
+
 
 class NodeAttr:
   def __init__(self):
@@ -35,19 +39,12 @@ class EdgeAttr:
     # drawn from a uniform distribution.
     self.latency = rnd.randint(MIN_LATENCY, MAX_LATENCY)
     self.dropRate = float(rnd.randint(MIN_DROP_RATE * DROP_MULT, MAX_DROP_RATE  * DROP_MULT)) / DROP_MULT
-    self.load = 0
     self.dropped_packets = 0
-
-  def increase_load(self):
-    self.load += 1
-
-  def decrease_load(self):
-    self.load = self.load * LOAD_DECAY
 
   # Generate a travel time for a particular packet from
   # a standard Gaussian distribution.
   def getTravelTime(self):
-    return float(rnd.gauss(self.latency, LATENCY_STD)) * (1 + LOAD_MULTIPLIER * self.load)
+    return float(rnd.gauss(self.latency, LATENCY_STD))
 
   def isDropped(self):
     isDropped = rnd.randint(0, DROP_MULT) < self.dropRate * DROP_MULT
@@ -58,6 +55,7 @@ class EdgeAttr:
   def reset(self):
     self.load = 0
     self.dropped_packets = 0
+
 
 class Packet:
   # Initialize path to include the source / starting node.
