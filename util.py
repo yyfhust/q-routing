@@ -21,13 +21,14 @@ def simulate_packet_routing(n_s, routers, test_packets, kernel_size, packets_per
 
   return times
 
-def plot_times(times, kernel_size):
+def plot_times(times, kernel_size, title=''):
   fig = plt.figure()
   ax1 = fig.add_subplot(111)
 
   for name, time in times.items():
     ax1.scatter(range(len(time)), time, label=name)
 
+  if title != '': plt.title(title)
   plt.legend(loc='upper left')
   plt.ylabel("transmission time (ms)")
   plt.xlabel("iteration (kernel sz of %i packets)" % kernel_size)

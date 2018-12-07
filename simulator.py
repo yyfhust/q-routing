@@ -110,8 +110,8 @@ class NetworkSimulator:
     avg_time = network_stats.total_time / n
     print(" avg path length:       %f" % avg_length)
     print(" avg transmission time: %f" % avg_time)
-    print(" timed out packets:     %i / %i" % (network_stats.timed_out_packets, n))
-    print(" dropped packets:       %i / %i" % (network_stats.dropped_packets, n))
+    print(" timed out rate:        %f" % (float(network_stats.timed_out_packets) / n))
+    print(" dropped packet rate:   %f" % (float(network_stats.dropped_packets) / n))
  
   # Iterate through node queues and propagate packets through the network.
   def propagate_packets(self, packet_router, network_stats):

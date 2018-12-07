@@ -6,7 +6,7 @@
 ##
 
 from simulator import NetworkSimulator
-from packetrouter import QPacketRouter, HybridRIPQPacketRouter, RandomPacketRouter, RIPPacketRouter
+from packetrouter import QPacketRouter, HybridQPacketRouter, RandomPacketRouter, RIPPacketRouter
 import util as Util
 
 if __name__ == '__main__':
@@ -16,7 +16,7 @@ if __name__ == '__main__':
   DROP_NODE_CONNECTIVITY = 0.4
 
   # load simulator
-  NUM_PACKETS = 500000
+  NUM_PACKETS = 200000
   PACKETS_PER_BATCH = 2000
   DROP_NODES = True
 
@@ -26,14 +26,20 @@ if __name__ == '__main__':
   n_s = NetworkSimulator(NUM_NODES, drop_node_fraction=DROP_NODE_FRACTION, drop_node_connectivity=DROP_NODE_CONNECTIVITY)
 
   # Initialize all packet routers.
+  # routers = {
+  #   'RIP Router' : RIPPacketRouter(n_s),
+  #   # 'Q-Routing w/ Proper Seeds' : SeededQPacketRouter(n_s, NUM_NODES, penalize_drops = True)
+  #   'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True),
+  #   'Vanilla Q Routing' : QPacketRouter(n_s)
+  # }
   routers = {
     'RIP Router' : RIPPacketRouter(n_s),
-    # 'Q-Routing w/ RIP Hybrid' : HybridRIPQPacketRouter(n_s, NUM_NODES, penalize_drops = True),
-    'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True),
-    'Vanilla Q Routing' : QPacketRouter(n_s),
+    # 'Vanilla Q Routing' : QPacketRouter(n_s)
+    'Q-Routing w/ Proper Seeds' : HybridQPacketRouter(n_s, NUM_NODES, penalize_drops = True),
+    'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True)
   }
   test_packets = n_s.generate_packets(NUM_PACKETS)
 
   # Runs n_s.simulate_network_load_parallel() for each router in routers.
   times = Util.simulate_packet_routing(n_s, routers, test_packets, KERNEL_SIZE, PACKETS_PER_BATCH, DROP_NODES)
-  Util.plot_times(times, KERNEL_SIZE)
+  Util.plot_times(times, KERNEL_SIZE, title='')

@@ -79,14 +79,6 @@ class QPacketRouter(PacketRouter):
  
     return self.update_Q(cur, nxt, packet)
  
-# Q-router hybrid that uses RIP routing initially, then switches to Q-routing as
-# Q-values become increasingly more and more accurate.
-class ActionType(Enum):
-  EXPLORE = 1
-  RIP = 2
-  QLEARN = 3
- 
- 
 # TODO: Only works with connected graphs.
 class RIPPacketRouter(PacketRouter):
   def __init__(self, simulator, epsilon=0.05, learning_rate=0.01):
@@ -118,22 +110,38 @@ class RIPPacketRouter(PacketRouter):
     self.simulator.traverseEdge(packet, node, nxt)
     return None if packet.dropped else nxt
  
+# Q-router hybrid that uses RIP routing initially, then switches to Q-routing as
+# Q-values become increasingly more and more accurate.
+class ActionType(Enum):
+  EXPLORE = 1
+  RIP = 2
+  QLEARN = 3
  
 # TODO: Is it cheating if HybridRIPQPacketRouter() has access to num_nodes?
 #       Seems to me a reasonable thing to provide to a router.
-class HybridRIPQPacketRouter(QPacketRouter, RIPPacketRouter):
+class HybridQPacketRouter(QPacketRouter, RIPPacketRouter):
  
-  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01, qlearn_threshold_multiplier=4000):
-    super().__init__(simulator, penalize_drops=False, epsilon=0.05, learning_rate=0.01, dropped_penalty=0.01)
+  def __init__(self, simulator, num_nodes, penalize_drops=False, epsilon=0.05, p_explore=.3, learning_rate=0.01, dropped_penalty=0.01, qlearn_threshold_multiplier=4000):
+    super().__init__(simulator, penalize_drops=False, epsilon=epsilon, learning_rate=learning_rate, dropped_penalty=dropped_penalty)
  
     self.elapsed = 0
+    self.p_explore = p_explore
     self.qlearn_threshold = qlearn_threshold_multiplier * num_nodes
+
+    # Seed initial Q-routing table.
+    # for src, destinations in nx.shortest_path(self.simulator.G).items():
+    #   for dst, path in destinations.items():
+    #     if src != dst:
+    #       self.Q[(src, dst, path[1])] = float(len(path)) - 100
  
   def explore(self):
-    if random.random() > self.epsilon * 0.1 and self.elapsed < self.qlearn_threshold:
-      return ActionType.RIP
-    elif random.random() < self.epsilon:
+    rnd = random.random()
+    # and self.elapsed < self.qlearn_threshold:
+    if rnd < self.epsilon:
       return ActionType.EXPLORE
+    elif rnd < self.epsilon + (1 - self.epsilon) * ((self.qlearn_threshold - self.elapsed) / self.qlearn_threshold):
+      return ActionType.RIP
+    
     return ActionType.QLEARN
  
   def routePacketSingleStep(self, packet, cur):
