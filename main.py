@@ -16,7 +16,7 @@ if __name__ == '__main__':
   DROP_NODE_CONNECTIVITY = 0.4
 
   # load simulator
-  NUM_PACKETS = 500000
+  NUM_PACKETS = 100000
   PACKETS_PER_BATCH = 2000
   DROP_NODES = True
 
@@ -28,9 +28,13 @@ if __name__ == '__main__':
   # Initialize all packet routers.
   routers = {
     'RIP Router' : RIPPacketRouter(n_s),
-    # 'Q-Routing w/ RIP Hybrid' : HybridRIPQPacketRouter(n_s, NUM_NODES, penalize_drops = True),
-    'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True),
+    'Dual-Reinforcement Q-Routing' : HybridRIPQPacketRouter(n_s, NUM_NODES, penalize_drops = True, epsilon = 1, epsilon_decay = 0.99),
+    #'Q Routing w/ Drop Penalization' : QPacketRouter(n_s, penalize_drops = True),
     'Vanilla Q Routing' : QPacketRouter(n_s),
+    #'Epsilon = 0.01' : QPacketRouter(n_s, epsilon = 0.01),
+    #'Epsilon = 0.05' : QPacketRouter(n_s, epsilon = 0.05),
+    #'Epsilon = 0.1' : QPacketRouter(n_s, epsilon = 0.1),
+    #'Epsilon = 0.2' : QPacketRouter(n_s, epsilon = 0.2),
   }
   test_packets = n_s.generate_packets(NUM_PACKETS)
 
